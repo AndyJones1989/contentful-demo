@@ -3,7 +3,7 @@ import * as contentful from "contentful";
 
 export default async function Home({ params }: { params: any }) {
   const components = await getContent(params.slug);
-  return <div>{components}</div>;
+  return <div style={{ height: "100vh" }}>{components}</div>;
 }
 
 const getContent = async (params: string) => {
@@ -38,7 +38,23 @@ const convertToReactComponents = (entries: any, params: string) => {
         components.push(textElementTransformer(element.fields));
         break;
       case "image":
+        console.log(element.fields);
         components.push(imageElementTransformer(element.fields));
+        break;
+      case "colorBlock":
+        components.push(
+          <div
+            style={{
+              position: "fixed",
+              top: element.fields.top + "%",
+              left: element.fields.left + "%",
+              backgroundColor: element.fields.color as string,
+              width: element.fields.width + "%",
+              height: element.fields.height + "%",
+              zIndex: -1,
+            }}
+          ></div>
+        );
         break;
 
       default:
@@ -54,23 +70,40 @@ const textElementTransformer = (fields: any) => {
   switch (type) {
     case "h1":
       return (
-        <h1
-          key="yo"
-          style={{ position: "relative", top: top + "%", left: left + "%" }}
-        >
-          {content}
-        </h1>
+        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+          <h1 key="yo">{content}</h1>
+        </div>
       );
     case "h2":
-      return <h2>{content}</h2>;
+      return (
+        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+          <h2>{content}</h2>
+        </div>
+      );
     case "h3":
-      return <h3>{content}</h3>;
+      return (
+        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+          <h3>{content}</h3>
+        </div>
+      );
     case "body":
-      return <div>{content}</div>;
+      return (
+        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+          <div>{content}</div>
+        </div>
+      );
     case "small":
-      return <small>{content}</small>;
+      return (
+        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+          <small>{content}</small>
+        </div>
+      );
     default:
-      return <div>{content}</div>;
+      return (
+        <div style={{ position: "relative", top: top + "%", left: left + "%" }}>
+          {content}
+        </div>
+      );
   }
 };
 
@@ -79,7 +112,7 @@ const imageElementTransformer = (fields: any) => {
   return (
     <div
       key={height}
-      style={{ position: "relative", top: top + "%", left: left + "%" }}
+      style={{ position: "fixed", top: top + "%", left: left + "%" }}
     >
       <Image
         src={"https:" + image.fields.file.url}
