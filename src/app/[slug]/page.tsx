@@ -12,25 +12,26 @@ const getContent = async (params: string) => {
     accessToken: process.env.DELIVERY_KEY as string,
   });
   const entries = await client.getEntries({ content_type: "page", limit: 10 });
+  console.log(JSON.stringify(entries.items, null, 2));
 
   const components = convertToReactComponents(entries.items, params);
 
   return components;
 };
 
-const convertToReactComponents = (entries: any, params: string) => {
+const convertToReactComponents = (entries: contentful.Entry<contentful.EntrySkeletonType, undefined, string>[], params: string) => {
   let page = {
     fields: { elements: [], sys: { contentType: { sys: { id: "" } } } },
   };
   for (const entry of entries) {
     if (entry.fields.slug === params) {
-      page = entry;
+      page = entry as any;
     }
   }
   if (page.fields.elements.length === 0) {
     return <div>Page not found</div>;
   }
-  const components: any[] = [];
+  const components: JSX.Element[] = [];
   for (const el of page.fields.elements) {
     let element = el as contentful.Entry<any>;
     switch (element.sys.contentType.sys.id) {
@@ -38,7 +39,6 @@ const convertToReactComponents = (entries: any, params: string) => {
         components.push(textElementTransformer(element.fields));
         break;
       case "image":
-        console.log(element.fields);
         components.push(imageElementTransformer(element.fields));
         break;
       case "colorBlock":
@@ -67,40 +67,46 @@ const convertToReactComponents = (entries: any, params: string) => {
 const textElementTransformer = (fields: any) => {
   const { type, content, amplifiers, top, left } = fields;
 
+  const style = {
+    position: "fixed",
+    top: top + "%",
+    left: left + "%",
+  };
+
   switch (type) {
     case "h1":
       return (
-        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+        <div style={style as Record<string, string>}>
           <h1 key="yo">{content}</h1>
         </div>
       );
     case "h2":
       return (
-        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+        <div style={style as Record<string, string>}>
           <h2>{content}</h2>
         </div>
       );
     case "h3":
       return (
-        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+        <div style={style as Record<string, string>}>
           <h3>{content}</h3>
         </div>
       );
     case "body":
       return (
-        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+        <div style={style as Record<string, string>}>
           <div>{content}</div>
         </div>
       );
     case "small":
       return (
-        <div style={{ position: "fixed", top: top + "%", left: left + "%" }}>
+        <div style={style as Record<string, string>}>
           <small>{content}</small>
         </div>
       );
     default:
       return (
-        <div style={{ position: "relative", top: top + "%", left: left + "%" }}>
+        <div style={style as Record<string, string>}>
           {content}
         </div>
       );
